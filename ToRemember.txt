@@ -1,0 +1,41 @@
+1. The docker script is 
+docker run \
+  --platform linux/amd64 \
+  -e "ACCEPT_EULA=Y" \
+  -e "MSSQL_SA_PASSWORD=LogisticAdv123" \
+  -p 1433:1433 \
+  --name legacy-mssql \
+  -d mcr.microsoft.com/mssql/server:2025-latest
+
+2. MSSQL_SA_PASSWORD we can keep any password but the user name will be sa only
+
+3. Readiness --> docker logs -f legacy-mssql
+
+4. to activate the venv
+source .venv/bin/activate
+python scripts/ingest_legacy_data.py
+
+5. if data is 
+  relational db --> api --> agent
+                --> mcp --> agent
+                --> text2sql --> agent that can see previous response (preffered)
+
+  unstructed data --> RAG (semantic search) need Vector DB
+                      chuncking strategy, modification/deletion strategy, 
+                      validation of source info, ingestion logic for different data type
+6. Query details (what are the queries they will ask the agent)
+                  Refer the company SOPs before answering
+7. Security --> should add guardrails for customer data, 
+                else restrict insert/delete/update
+8. HLD(High Level Doc) and LLD(Low Level Doc)
+
+9. SOP --> comes in pdf, md, csv, etc
+      --> it need to be chuncked 
+      data source --> chuncks --> vector embeddings --> pinecone index
+
+10. Embedding api providers can be openai, cohere, google etc (not free)
+        and can also be local llm
+      NOTE: Embedding providers and index needs to be same(openai or local for both) --> if not causes hallucination
+
+11. 
+        

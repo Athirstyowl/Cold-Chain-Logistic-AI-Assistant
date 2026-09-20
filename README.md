@@ -1,1 +1,0 @@
-# Cold-Chain-Logistic-AI-Assistant
