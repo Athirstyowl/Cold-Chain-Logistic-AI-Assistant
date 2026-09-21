@@ -31,7 +31,7 @@ python scripts/ingest_legacy_data.py
 
 9. SOP --> comes in pdf, md, csv, etc
       --> it need to be chuncked 
-      data source --> chuncks --> vector embeddings --> pinecone index
+      data source --> chunks --> textspliter --> vector embeddings --> pinecone index
 
 10. Embedding api providers can be openai, cohere, google etc (not free)
         and can also be local llm
