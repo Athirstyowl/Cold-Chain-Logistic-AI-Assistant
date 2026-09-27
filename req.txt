@@ -4,8 +4,10 @@ faiss-cpu==1.15.0
 langchain-community==0.4.2
 langchain-google-genai==4.0.0
 langchain-huggingface==1.2.2
+langchain-ollama==1.1.0
 langchain-openai==1.6.0
 langchain-pinecone==0.2.13
+langchain-text-splitters==1.1.2
 langgraph==1.2.11
 langgraph-checkpoint==4.2.0
 langsmith==0.11.1
@@ -17,6 +19,7 @@ pydantic-settings==2.15.0
 pyodbc==5.3.0
 pypdf==6.16.2
 python-dotenv==1.2.3
+requests==2.34.2
 scikit-learn==1.9.0
 sentence-transformers==6.0.0
 SQLAlchemy==2.0.52

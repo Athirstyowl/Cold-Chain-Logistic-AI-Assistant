@@ -27,7 +27,7 @@ docker run -v mssql_data:/var/opt/mssql \
   -d mcr.microsoft.com/mssql/server:2025-latest
 
 ```
-- install the req > pip install -r requirements.txt
+- install the req > pip install -r req.txt
 
 - python scripts\ingest_legacy_data.py
 
@@ -154,6 +154,20 @@ GRANT INSERT ON FDE_VIEWS.AgentAuditLog TO USR_FDE_RO;
 ## Phase 5
 streamlit run src\ui.py
 
+### Choosing the LLM provider
+- Add the API key for each provider you want to offer to `.env` (see `env.txt`):
+  `GEMINI_API_KEY`, `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`, `OPENROUTER_API_KEY`, `GROQ_API_KEY`.
+- Only providers with a key appear in the sidebar dropdown. Ollama (local) is always listed and needs `ollama serve` running.
+- `AGENT_LLM` sets which provider is preselected (and the one used by `src\orchestrator.py` CLI).
+- Pick a suggested model or enter any model ID with "Custom model ID". Override a provider's default with `<PROVIDER>_MODEL`.
+- Use "Test Connection" to check the key and model before chatting. Switching provider or model starts a fresh session.
+
+### Running tests
+```
+pip install -r req-dev.txt
+python -m pytest
+```
+
 ## Phase 6
 - Deployment
 ```
@@ -163,7 +177,7 @@ git clone https://github.com/nimowhyca/cold-chain-logistics-FDE-Project.git
 cd cold-chain-logistics-FDE-Project
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r req.txt
 streamlit run src/ui.py
 ```
 

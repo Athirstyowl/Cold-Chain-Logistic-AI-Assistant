@@ -1,4 +1,5 @@
 import os
+import sys
 import urllib
 import requests
 from pathlib import Path
@@ -14,6 +15,12 @@ from langchain_pinecone import PineconeVectorStore
 # ==========================================
 script_dir = Path(__file__).resolve().parent
 project_root = script_dir.parent  
+
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from src.settings import embedding_settings
+from src.sql_guard import validate_read_only_sql
 
 load_dotenv(dotenv_path=project_root / ".env")
 
@@ -38,7 +45,7 @@ def get_cached_huggingface_embeddings(model_name: str):
         )
     return _load_model(model_name)
 
-EMBEDDINGS_MODEL_SETTING = os.getenv("Embeddings_model", "LOCAL").strip().upper()
+EMBEDDINGS_MODEL_SETTING, local_model_target = embedding_settings()
 
 db_host = os.getenv("SQL_SERVER_HOST", "localhost")
 db_port = os.getenv("SQL_SERVER_PORT", "1433")
@@ -53,8 +60,6 @@ if EMBEDDINGS_MODEL_SETTING == "OPENAI":
     embeddings = OpenAIEmbeddings()
     INDEX_NAME = "fde-sop-index-openai"
 else :
-    local_model_target = os.getenv("Local_Embedding_Model", "BAAI/bge-m3").strip()
-    
     print(f"🤗 Mode: Connecting to Local Fallback [{local_model_target}] Index (1024 Dim Space)...")
 
     try:
@@ -73,6 +78,18 @@ else :
 vector_store = PineconeVectorStore(index_name=INDEX_NAME, embedding=embeddings)
 retriever = vector_store.as_retriever(search_kwargs={"k": 2})
 
+# Engine is created once; connections are pooled across tool calls
+db_connection_string = (
+    f"DRIVER={{ODBC Driver 18 for SQL Server}};"
+    f"SERVER={db_host},{db_port};"
+    f"DATABASE=master;"
+    f"UID={db_user};"
+    f"PWD={db_password};"
+    f"Encrypt=no;"
+    f"TrustServerCertificate=yes;"
+)
+db_engine = create_engine(f"mssql+pyodbc:///?odbc_connect={urllib.parse.quote_plus(db_connection_string)}")
+
 # ==========================================
 # 2. CORE FDE AGENT TOOLS
 # ==========================================
@@ -84,27 +101,14 @@ def query_telemetry_db(sql_query: str) -> str:
     Columns available:
     Timestamp, Latitude, Longitude, Current_Temperature_C, Cargo_Condition_Code,
     Risk_Classification, Delay_Probability, Port_Congestion_Level, Route_Risk_Index.
-    Always write standard T-SQL queries.
+    Always write a single standard T-SQL SELECT (CTEs with WITH are allowed).
     """
-    connection_string = (
-            f"DRIVER={{ODBC Driver 18 for SQL Server}};"
-            f"SERVER={db_host},{db_port};"
-            f"DATABASE=master;"
-            f"UID={db_user};"
-            f"PWD={db_password};"
-            f"Encrypt=no;"
-            f"TrustServerCertificate=yes;"
-        )
+    blocked_reason = validate_read_only_sql(sql_query)
+    if blocked_reason:
+        return f"SECURITY BLOCK: {blocked_reason}"
 
-    params = urllib.parse.quote_plus(connection_string)
-    
-    engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
-    
     try:
-        if not sql_query.strip().upper().startswith("SELECT"):
-            return "SECURITY BLOCK: Only SELECT operations are authorized on this view."
-            
-        with engine.connect() as conn:
+        with db_engine.connect() as conn:
             cursor = conn.execute(text(sql_query))
             columns = list(cursor.keys())
             rows = cursor.fetchmany(10)

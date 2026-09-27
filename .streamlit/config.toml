@@ -1,2 +1,44 @@
 [server]
 fileWatcherType ="none"
+
+[client]
+toolbarMode = "minimal"
+
+# Three-colour system: canvas #0B0F19, ink #E8E6E1, accent #FF4F00 (primary actions only).
+# Every other value is ink at an opacity over the canvas: 5% surface, 10% border, 55% muted.
+[theme]
+base = "dark"
+primaryColor = "#FF4F00"
+backgroundColor = "#0B0F19"
+secondaryBackgroundColor = "#161A23"
+textColor = "#E8E6E1"
+borderColor = "#21242D"
+dataframeBorderColor = "#21242D"
+dataframeHeaderBackgroundColor = "#161A23"
+linkColor = "#E8E6E1"
+codeBackgroundColor = "#161A23"
+codeTextColor = "#E8E6E1"
+# Semantic colours collapse to ink so alerts and statuses never introduce a fourth hue
+redColor = "#E8E6E1"
+orangeColor = "#E8E6E1"
+yellowColor = "#E8E6E1"
+blueColor = "#E8E6E1"
+greenColor = "#E8E6E1"
+violetColor = "#E8E6E1"
+grayColor = "#858587"
+font = "Geist:https://fonts.googleapis.com/css2?family=Geist:wght@300..600&display=swap"
+headingFont = "Instrument Serif:https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"
+codeFont = "Geist Mono:https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap"
+baseFontSize = 16
+baseFontWeight = 300
+headingFontWeights = 400
+headingFontSizes = ["3.75rem", "2.25rem", "1.6rem", "1.3rem", "1.05rem", "0.95rem"]
+baseRadius = "4px"
+buttonRadius = "4px"
+showWidgetBorder = true
+showSidebarBorder = true
+
+[theme.sidebar]
+backgroundColor = "#0B0F19"
+secondaryBackgroundColor = "#161A23"
+borderColor = "#21242D"

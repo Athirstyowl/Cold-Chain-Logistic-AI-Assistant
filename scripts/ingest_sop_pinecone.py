@@ -1,4 +1,5 @@
 import os
+import sys
 import hashlib
 import json
 from pathlib import Path
@@ -22,6 +23,11 @@ script_dir = Path(__file__).resolve().parent
 project_root = script_dir.parent 
 load_dotenv(project_root / ".env")
 
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from src.settings import embedding_settings
+
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 
 if not PINECONE_API_KEY:
@@ -43,7 +49,7 @@ if HASH_CACHE_FILE.exists():
 # ==========================================
 # 2. DYNAMIC ENVIRONMENT ROUTING
 # ==========================================
-EMBEDDINGS_MODEL_SETTING = os.getenv("Embeddings_model", "LOCAL").strip().upper()
+EMBEDDINGS_MODEL_SETTING, local_model_target = embedding_settings()
 
 if EMBEDDINGS_MODEL_SETTING == "OPENAI":
     print("🤖 Mode: Utilizing Cloud OpenAI Embeddings (1536 Dim)...")
@@ -51,9 +57,6 @@ if EMBEDDINGS_MODEL_SETTING == "OPENAI":
     INDEX_NAME = "fde-sop-index-openai"  # Isolated OpenAI Index
     TARGET_DIMENSION = 1536
 else:
-    # Read the explicit model identifier casing string from the .env parameters
-    local_model_target = os.getenv("Local_Embedding_Model", "BAAI/bge-m3").strip()
-    
     print(f"🤗 Mode: Local Fallback Settings Activated. Launching [{local_model_target}] (1024 Dim)...")
     from langchain_huggingface import HuggingFaceEmbeddings
     embeddings = HuggingFaceEmbeddings(
