@@ -37,5 +37,19 @@ python scripts/ingest_legacy_data.py
         and can also be local llm
       NOTE: Embedding providers and index needs to be same(openai or local for both) --> if not causes hallucination
 
-11. 
+11. Why LangGraph is required
+
+                        ------- <---------------------------------------- <---
+                        Y                                                    |
+start --> node --> reasoner (llm) --> call tools? --> tools --> executing tools 
+                                        |
+                                        |
+                                        No
+                                        |
+                                        |
+                                        END
+
+12. stremlit --> every interact --> causes RERUN --> loading the modal everytime( unnecesary)
+    to prevent -> Cache the Model in streamlit --> streamlit session 
+
         
